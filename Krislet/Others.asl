@@ -2,26 +2,16 @@
 
 
 +!start : true 
-    <- .print("Game Started - Entering Loop");
+    <- .print("Game Started - Entering Loop, Im Other");
        !play.
 
 
 
-+!play 
-    : see_ball(Dist, Dir) & Dist <= 1.0 
-    <- kick(100, 0);
-       !play.
 
 
 +!play 
     : see_ball(Dist, Dir) & (Dir > 10 | Dir < -10)
-    <- turn(Dir);
-       !play.
-
-
-+!play 
-    : see_ball(Dist, Dir) & Dist > 1.0
-    <- dash(80);
+    <- turn(40);
        !play.
 
 

@@ -1,0 +1,9 @@
+{
+    "java.project.sourcePaths": [
+        "Krislet"
+    ],
+    "java.project.referencedLibraries": [
+        "Krislet\\javax.json-api-1.1.4.jar",
+        "Krislet\\jason.jar"
+    ]
+}

@@ -1,4 +1,3 @@
-
 import java.util.regex.*;
 import java.lang.Math;
 import jason.asSemantics.ActionExec; 
@@ -18,7 +17,9 @@ class Brain extends Thread implements SensorInput
         m_memory = new Memory();
         m_side = side;
         m_playMode = playMode;
-        m_jasonAgent = new JasonAgentWrapper();
+        
+        
+        m_jasonAgent = new JasonAgentWrapper(number, side);
 
         start();
     }
@@ -30,17 +31,20 @@ class Brain extends Thread implements SensorInput
             m_krislet.move( -Math.random()*52.5 , 34 - Math.random()*68.0 );
 
         while( !m_timeOver )
-        {        
+        {
+            
+            
             ActionExec action = m_jasonAgent.reason(m_memory);
 
             if (action != null) {
-                System.out.println("doing aciton");
-				System.out.println(action.toString());
-				executeAction(action);
+                executeAction(action);
             } else {
-				System.out.println("no action selected, waiting for new info...");
-            }
+                
+                m_memory.waitForNewInfo();
 
+        }
+
+            
             try{
                 Thread.sleep(2*SoccerParams.simulator_step);
             }catch(Exception e){}
@@ -48,28 +52,28 @@ class Brain extends Thread implements SensorInput
         m_krislet.bye();
     }
 
-   
+    
     private void executeAction(ActionExec action) {
         String functor = action.getActionTerm().getFunctor();
         
         try {
             if (functor.equals("turn")) {
-               
-                double degree = Double.parseDouble(action.getActionTerm().getTerm(0).toString());
-				System.out.println(degree);
-                m_krislet.turn(degree);
+            
+                double moment = Double.parseDouble(action.getActionTerm().getTerm(0).toString());
+                m_krislet.turn(moment);
             } 
             else if (functor.equals("dash")) {
-                
+               
                 double power = Double.parseDouble(action.getActionTerm().getTerm(0).toString());
                 m_krislet.dash(power);
             } 
             else if (functor.equals("kick")) {
-                
+               
                 double power = Double.parseDouble(action.getActionTerm().getTerm(0).toString());
                 double dir = Double.parseDouble(action.getActionTerm().getTerm(1).toString());
                 m_krislet.kick(power, dir);
             }
+            
             else if (functor.equals(".print")) {
                  System.out.println("Agent says: " + action.getActionTerm().getTerm(0));
             }
@@ -78,12 +82,12 @@ class Brain extends Thread implements SensorInput
         }
     }
 
-
+    
     public void see(VisualInfo info) { m_memory.store(info); }
     public void hear(int time, int direction, String message) {}
     public void hear(int time, String message) { if(message.compareTo("time_over") == 0) m_timeOver = true; }
 
-
+    // Private members
     private SendCommand	        m_krislet;
     private Memory			    m_memory;
     private char			    m_side;

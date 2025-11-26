@@ -58,7 +58,10 @@ class Memory
 		    }
 	    }
     }
-
+    public VisualInfo getVisualInfo()
+    {
+        return m_info;
+    }
 
     //===========================================================================
     // Private members

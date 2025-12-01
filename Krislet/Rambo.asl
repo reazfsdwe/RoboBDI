@@ -14,7 +14,7 @@
 
 
 +!play 
-    : see_ball(Dist, Dir) & Dist < 5
+    : see_ball(Dist, Dir) & Dist <= 5
     <- dash(100);
        !play.
 

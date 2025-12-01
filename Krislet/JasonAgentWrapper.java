@@ -7,7 +7,6 @@ import jason.asSyntax.Literal;
 import jason.infra.local.RunLocalMAS;
 
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -32,12 +31,16 @@ public class JasonAgentWrapper extends AgArch {
             ag.initAg();
 
             if (playerNumber == 1){
-                ag.load("Rambo.asl");
+                ag.load("Goalie.asl");
             }
             else if (playerNumber == 2){
-                ag.load("Goalie.asl");
-            }else{
-                ag.load("Others.asl");
+                ag.load("Rambo.asl");
+            }else if (playerNumber == 3){
+                ag.load("DefenderBot.asl");
+            }else if (playerNumber == 4){
+                ag.load("DefenderMid.asl");
+            }else if (playerNumber == 5){
+                ag.load("DefenderTop.asl");
             }
 
             

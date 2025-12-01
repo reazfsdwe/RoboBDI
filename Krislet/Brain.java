@@ -17,7 +17,7 @@ class Brain extends Thread implements SensorInput
         m_memory = new Memory();
         m_side = side;
         m_playMode = playMode;
-        
+       
         
         m_jasonAgent = new JasonAgentWrapper(number, side);
 

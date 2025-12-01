@@ -1,54 +1,81 @@
+
+state(normal).
+position(incorrect).
+
+
 !start.
 
++!play 
+    : state(normal) & not see_ball(_, _) 
+    <- .print("Normal Mode: Find ball");
+       turn(50);
+       !play.  
 
 +!start : true 
-    <- .print("Game Started - Entering Loop, Im Goalie");
+    <- .print("Goalie Started - I'm goalie!");
+       !!play.  
+
++!play 
+    : state(normal) & see_ball(D, A) & D <= 1.0
+    <- .print("Normal Mode: kick the ball");
+       kick(100, A);
+       !play.  
+
++!checkPosition 
+    : state(normal) & goalie_see_own_goal(D, A) & D >= 5
+    <- .print("Adjusting Position to center of Goal");
+       -+position(incorrect);
        !play.
 
-+play
-    : see_ball(Dbc, Abc) & Dbc <= 1
-    <- .print("Ball extremely close, kicking away!");
-       turn(Abc);       
-       kick(0, 100);       
-       !play.
++!checkPosition 
+    : state(normal) & not goalie_see_own_goal(_, _)
+    <- .print("Adjusting Position to center of Goal");
+       turn(90);
+      !checkPosition.
+           
++!play 
+    : state(normal) & see_ball(D, A) & D < 20
+    <- .print("Normal Mode: Attacking ball");
+       dash(100);
+       !!play.  
 
-+play
-    : see_ball(Dbc, Abc) & Dbc < 15 & Dbc > 1
-    <- .print("Ball close, going for it!");
-       turn(Abc);       
-       dash(100);       
++!play 
+    : position(incorrect) & state(normal) & see_ball(D, _) & D >= 20
+    <- .print("Ball too far! SWITCHING TO RETURN MODE.");
+       -+state(returning);  
+       !play.  
+
++!play 
+    : position(correct) & state(normal) & see_ball(D, _) & D >= 20
+    <- .print("Watching Ball from Goal. "); 
+       !play.  
+
+
++!play 
+    : position(correct) & state(normal) & not see_ball(_, _)
+    <- .print("Normal Mode: Searching for ball...");
+       turn(50);
        !play.
 
 
 +!play 
-    : see_my_flag("flag p l c", Dgc, Agc) & Dgc > 10 & see_ball(Dbc, Abc) & Dbc > 30
-    
-    <- .print("ball far, go back to own goal!");
-       turn(Agc);
-       dash(80);       
+    : state(returning) & goalie_see_own_goal(D, A) & D >= 3 
+    <- .print("Returning... Ignoring ball.");
+       dash(100);
+       !play. 
+
+
++!play 
+    : state(returning) & goalie_see_own_goal(D, A) & D <= 3  
+    <- .print("Arrived! Turning around & Switching to Normal.");
+       -+state(normal);
+       -+position(correct);
        !play.
 
 
 +!play 
-    : see_my_flag("flag p r c", Dgc, Agc) & Dgc > 10
-     
-    <- .print("ball far, go back to own goal!");
-       turn(Agc);      
-       dash(80);       
+    : state(returning) & not goalie_see_own_goal(_, _)
+    <- .print("Returning: Lost own goal, searching...");
+       turn(40);
        !play.
 
-
-
-+!play 
-    : flag_lost
-    <- print("Flag lost, turning to find it");
-        turn(40);
-        
-       !play.
-
-
-
-+!play 
-    : no_info
-    <- .print("Waiting for visual info...");
-       !play.

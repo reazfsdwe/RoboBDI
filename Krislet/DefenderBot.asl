@@ -81,7 +81,7 @@
 +!get_ball
     : not see_ball(_, _)
     <-  .print("BottomDef: lost ball while chasing. Returning to defend.");
-        !defend.
+        !go_on_defense.
 
 // See ball and still not at feet (D >= 1) -> dash toward ball direction
 +!get_ball
@@ -113,7 +113,6 @@
 +!support
     : see_center_flag(DC, DirC)
     <-  .print("BottomDef: clearing ball toward centre. DistCenter=", DC, " DirCenter=", DirC);
-        turn(DirC);
         kick(100, DirC);
         .print("BottomDef: ball cleared, going back to defense.");
         !go_on_defense.

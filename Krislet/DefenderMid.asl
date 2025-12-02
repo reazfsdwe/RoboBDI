@@ -1,7 +1,7 @@
 !start.
 
 // ---------------------------------------------------------
-+!start : true 
++!start : true
     <-  .print("Game Started - I'm Middle Defender");
         !go_on_defense.
 
@@ -62,7 +62,7 @@
 +!get_ball
     : not see_ball(_, _)
     <-  .print("MidDef: lost ball while chasing. Returning to defend.");
-        !defend.
+        !go_on_defense.
 
 +!get_ball
     : see_ball(D, Dir)
@@ -87,7 +87,6 @@
 +!support
     : see_center_flag(DC, DirC)
     <-  .print("MidDef: clearing ball toward centre. DistCenter=", DC, " DirCenter=", DirC);
-        turn(DirC);
         kick(100, DirC);
         .print("MidDef: ball cleared, going back to defense.");
         !go_on_defense.

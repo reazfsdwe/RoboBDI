@@ -9,18 +9,20 @@
     <- .print("Searching for info...");
     turn(50).
 
-+!alignEnemyGoal: see_enemy_goal
-    <- .print("Aligned to enemy goal.").
++!alignCenter : centerFlag(dir)
+    <- .print("Aligning to center of field.");
+    turn(dir).
 
-+!alignEnemyGoal: ~see_enemy_goal
++!alignCenter : true
     <-
     !search;
-    !alignEnemyGoal.
+    !alignCenter.
 
-+!align_top : see_topline(Dist, Dir)
-    <- .print("See topline.").
++!align_top : topFlag(Dist, Dir)
+    <- .print("See top flag.");
+    turn(dir).
 
-+!align_top : ~see_topline(Dist, Dir)
++!align_top : ~topFlag(Dist, Dir)
     <-
     !search;
     !align_top.
@@ -35,19 +37,19 @@
 +!play
     : see_ball(Dist, Dir) & Dist <= 1
     <- .print("Ball in range, kicking to center field!");
-       !alignEnemyGoal;
+       !alignCenter;
        kick(100, 0);
        !play.
 
 +!play
-    : see_ball(Dist, Dir) & Dist < 20
+    : see_ball(Dist, Dir) & Dist < 25
     <- .print("Ball close, chasing!");
        turn(Dir);
        dash(100);
        !play.
 
 +!play
-    : see_ball(Dist, Dir) & Dist > 20
+    : see_ball(Dist, Dir) & Dist > 25
     <- .print("Ball far, returning to position!");
        !returnToDefense.
 

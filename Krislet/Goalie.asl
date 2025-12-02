@@ -99,7 +99,7 @@ ball_close_threshold(1.0).    // distance under which we can kick the ball
       & ball_close_threshold(Close)
       & D < Close
     <-  .print("clear_ball: ball at feet (Dist=", D, "). Kicking hard!");
-        kick(100, A);
+        !center_kick;
         .print("clear_ball: ball cleared, going back to goal.");
         !go_to_goal.
 
@@ -116,3 +116,16 @@ ball_close_threshold(1.0).    // distance under which we can kick the ball
     : not see_ball(_, _)
     <-  .print("clear_ball: lost sight of ball. Returning to defend_goal.");
         !defend_goal.
+
+// Centre flag not visible -> search
++!center_kick
+    : not see_center_flag(_, _)
+    <-  .print("Goalie: support mode - centre flag not visible, searching...");
+        turn(45);
+        !support.
+
+// Centre flag visible -> turn to it and clear ball, then go back to defense
++!center_kick
+    : see_center_flag(DC, DirC)
+    <-  .print("Goalie: clearing ball toward centre. DistCenter=", DC, " DirCenter=", DirC);
+        kick(100, DirC).

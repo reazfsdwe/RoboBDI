@@ -183,7 +183,10 @@ class Brain extends Thread implements SensorInput {
 
         if (message.compareTo("time_over") == 0) {
             m_timeOver = true;
-        } else {
+        } else if (message.compareTo("half_time") == 0) {
+            m_jasonAgent.switchSide();
+        }
+        else{
             // treat any other referee message as a play mode update
             m_playMode = message;
             m_memory.setPlayMode(message);

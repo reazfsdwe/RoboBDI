@@ -1,87 +1,93 @@
 !start.
 
-
+// ---------------------------------------------------------
 +!start : true 
-    <- .print("Game Started - Entering Loop, Im a Defender");
-       !play.
+    <-  .print("Game Started - I'm Top Defender");
+        !go_on_defense.
 
-+!search : true
-    <- .print("Searching for info...");
-    turn(50).
-
-+!alignEnemyGoal: see_enemy_goal(dir)
-    <- .print("Aligned to enemy goal.");
-    turn(dir).
-
-+!alignEnemyGoal: ~see_enemy_goal(dir)
-    <-
-    !search;
-    !alignEnemyGoal.
-
-+!align_top : see_topline(Dist, Dir)
-    <- .print("See topline.").
-
-+!align_top : ~see_topline(Dist, Dir)
-    <-
-    !search;
-    !align_top.
++goal_against
+    <-  .print("BottomDef: goal against us! Resetting to defensive flag.");
+        .drop_all_intentions;
+        !go_on_defense.
 
 
-+!play
-    : ball_lost
-    <- .print("Ball lost, search!");
-       !search;
-       !play.
+// GO_ON_DEFENSE: use top penalty flag
++!go_on_defense
+    : not see_defense_top_flag(_, _)
+    <-  .print("TopDef: searching for defense flag (top).");
+        turn(45);
+        !go_on_defense.
 
-+!play
-    : see_ball(Dist, Dir) & Dist <= 1
-    <- .print("Ball in range, kicking to center field!");
-       !alignEnemyGoal;
-       kick(100, 0);
-       !play.
++!go_on_defense
+    : see_defense_top_flag(D, Dir)
+      & D >= 5.0
+    <-  .print("TopDef: moving toward defense flag. Dist=", D, " Dir=", Dir);
+        dash(100, Dir);
+        !go_on_defense.
 
-+!play
-    : see_ball(Dist, Dir) & Dist < 20
-    <- .print("Ball close, chasing!");
-       turn(Dir);
-       dash(100);
-       !play.
++!go_on_defense
+    : see_defense_top_flag(D, _)
+      & D < 5.0
+    <-  .print("TopDef: reached defensive position (Dist=", D, "). Switching to defend.");
+        !defend.
 
-+!play
-    : see_ball(Dist, Dir) & Dist > 20
-    <- .print("Ball far, returning to position!");
-       !returnToDefense.
+// DEFEND
++!defend
+    : not see_ball(_, _)
+    <-  .print("TopDef: defending, no ball visible - scanning.");
+        turn(45);
+        !defend.
 
-+!play
-    : true
-    <- .print("Waiting...");
-       !play.
++!defend
+    : see_ball(D, Dir)
+      & D >= 20.0
+    <-  .print("TopDef: ball far (Dist=", D, "). Tracking direction only.");
+        turn(Dir);
+        !defend.
 
-+!returnToDefense
-    : align_info_lost
-    <- .print("Missing alignment info, searching!");
-       !search;
-       !returnToDefense.
++!defend
+    : see_ball(D, _)
+      & D >= 1.0
+      & D < 20.0
+    <-  .print("TopDef: ball in range (Dist=", D, "). Going to get it.");
+        !get_ball.
 
++!defend
+    : see_ball(D, _)
+      & D < 1.0
+    <-  .print("TopDef: ball at feet (Dist=", D, "). Supporting immediately.");
+        !support.
 
+// GET_BALL
++!get_ball
+    : not see_ball(_, _)
+    <-  .print("TopDef: lost ball while chasing. Returning to defend.");
+        !defend.
 
++!get_ball
+    : see_ball(D, Dir)
+      & D >= 1.0
+    <-  .print("TopDef: chasing ball. Dist=", D, " Dir=", Dir);
+        dash(100, Dir);
+        !get_ball.
 
-+!returnToDefense
-    : above_three_quarter
-    <- .print("Moving up to defense position");
-           dash(100);
-           !returnToDefense.
++!get_ball
+    : see_ball(D, _)
+      & D < 1.0
+    <-  .print("TopDef: reached ball (Dist=", D, "). Switching to support.");
+        !support.
 
-+!returnToDefense
-    : less_three_quarter
-    <- .print("Ball far, moving down to defense position");
-           dash(-100);
-           !returnToDefense.
+// SUPPORT
++!support
+    : not see_center_flag(_, _)
+    <-  .print("TopDef: support mode - centre flag not visible, searching...");
+        turn(45);
+        !support.
 
-
-
-
-+!returnToDefense : true
-  <- .print("In position, back to regular play");
-  !play.
-
++!support
+    : see_center_flag(DC, DirC)
+    <-  .print("TopDef: clearing ball toward centre. DistCenter=", DC, " DirCenter=", DirC);
+        turn(DirC);
+        kick(100, DirC);
+        .print("TopDef: ball cleared, going back to defense.");
+        !go_on_defense.

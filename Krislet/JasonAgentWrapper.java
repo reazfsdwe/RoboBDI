@@ -14,7 +14,7 @@ public class JasonAgentWrapper extends AgArch {
     private static Logger logger = Logger.getLogger(JasonAgentWrapper.class.getName());
 
     private final PerceptsForJason perceptsGenerator = new PerceptsForJason();
-    private final char side;
+    private char side;
 
     private Memory currentMemory;
     private ActionExec selectedAction;
@@ -99,4 +99,14 @@ public class JasonAgentWrapper extends AgArch {
 
     @Override
     public void checkMail() {}
+
+    /**
+     * Switch the agent to the other side, called after half-time
+     */
+    public void switchSide(){
+        if (this.side == 'l')
+            this.side = 'r';
+        else
+            this.side = 'l';
+    }
 }

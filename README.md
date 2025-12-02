@@ -20,7 +20,6 @@ To run the system, follow these steps and execute the required files in the spec
 
 1.  **Run the Krislet Server**
  
-
 2.  **Run the Monitor**
  
 3.  **Run the Agent Start Script:**

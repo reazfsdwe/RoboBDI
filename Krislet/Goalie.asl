@@ -129,3 +129,17 @@ ball_close_threshold(1.0).    // distance under which we can kick the ball
     : see_center_flag(DC, DirC)
     <-  .print("Goalie: clearing ball toward centre. DistCenter=", DC, " DirCenter=", DirC);
         kick(100, DirC).
+
++!support
+    : not see_center_flag(_, _)
+    <-  .print("BottomDef: support mode - centre flag not visible, searching...");
+        turn(45);
+        !support.
+
+// Centre flag visible -> turn to it and clear ball, then go back to defense
++!support
+    : see_center_flag(DC, DirC)
+    <-  .print("BottomDef: clearing ball toward centre. DistCenter=", DC, " DirCenter=", DirC);
+        kick(100, DirC);
+        .print("BottomDef: ball cleared, going back to defense.");
+        !go_on_defense.

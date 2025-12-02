@@ -36,12 +36,13 @@ public class PerceptsForJason {
                     percepts.add(Literal.parseLiteral(String.format("see_ball(%f, %f)", dist, dir)));
                     ballFound = true;
                 } else if (type.startsWith("flag")) {
+                    computeFieldFlags((FlagInfo) obj, percepts, side);
                     if (side == 'l' && obj.m_type.equals("flag p l c") || (side == 'r' && obj.m_type.equals("flag p r c"))) {
                         percepts.add(Literal.parseLiteral(String.format("see_my_goal_flag(\"%s\", %f, %f)", type, dist, dir)));
                         flagFound = true;
-                    }else{flagFound = false;}
-                    
-
+                    }else {
+                        flagFound = false;
+                    }
                 } else if (type.startsWith("goal")) {
                     
                     percepts.add(Literal.parseLiteral(String.format("see_goal(\"%s\", %f, %f)", type, dist, dir)));
@@ -84,6 +85,28 @@ public class PerceptsForJason {
             }
             
             return percepts;
+    }
+
+    /**
+     * Add precepts locating relevant positional flags.
+     * Center flag: centerFlag(dir)
+     * Top Flag (for positional alignment): topFlag(dist, dir)
+     *
+     * @param flag The flag info object to parse for precept information
+     * @param percepts The list of logical percepts
+     * @param side The team side of the agent
+     */
+    private void computeFieldFlags(FlagInfo flag, List<Literal> percepts, char side) {
+        String type = flag.getType();
+        // Center flag
+        if (type.equals("flag c"))
+            percepts.add(Literal.parseLiteral(String.format("centerFlag(%f)", flag.getDirection())));
+        // Top flag, in own side (left)
+        if (type.equals("flag t l 30") && side == 'l')
+            percepts.add(Literal.parseLiteral(String.format("topFlag(%f, %f)", flag.getDistance(), flag.getDirection())));
+        // Top flag, in own side (right)
+        if (type.equals("flag t r 30") && side == 'r')
+            percepts.add(Literal.parseLiteral(String.format("topFlag(%f, %f)", flag.getDistance(), flag.getDirection())));
     }
 
     /**

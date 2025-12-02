@@ -1,88 +1,93 @@
 !start.
 
-
+// ---------------------------------------------------------
 +!start : true 
-    <- .print("Game Started - Entering Loop, Im a Defender");
-       !play.
+    <-  .print("Game Started - I'm Middle Defender");
+        !go_on_defense.
 
-+!search : true
-    <- .print("Searching for info...");
-    turn(50).
-
-+!alignEnemyGoal: see_enemy_goal
-    <- .print("Aligned to enemy goal.").
-
-+!alignEnemyGoal: ~see_enemy_goal
-    <-
-    !search;
-    !alignEnemyGoal.
-
-+!align_top : see_topline(Dist, Dir)
-    <- .print("See topline.").
-
-+!align_top : ~see_topline(Dist, Dir)
-    <-
-    !search;
-    !align_top.
++goal_against
+    <-  .print("BottomDef: goal against us! Resetting to defensive flag.");
+        .drop_all_intentions;
+        !go_on_defense.
 
 
-+!play
-    : ball_lost
-    <- .print("Ball lost, search!");
-       !search;
-       !play.
+// GO_ON_DEFENSE: use centre penalty flag
++!go_on_defense
+    : not see_defense_center_flag(_, _)
+    <-  .print("MidDef: searching for defense flag (center).");
+        turn(45);
+        !go_on_defense.
 
-+!play
-    : see_ball(Dist, Dir) & Dist <= 1
-    <- .print("Ball in range, kicking to center field!");
-       !alignEnemyGoal;
-       kick(100, 0);
-       !play.
++!go_on_defense
+    : see_defense_center_flag(D, Dir)
+      & D >= 5.0
+    <-  .print("MidDef: moving toward defense flag. Dist=", D, " Dir=", Dir);
+        dash(100, Dir);
+        !go_on_defense.
 
-+!play
-    : see_ball(Dist, Dir) & Dist < 20
-    <- .print("Ball close, chasing!");
-       turn(Dir);
-       dash(100);
-       !play.
++!go_on_defense
+    : see_defense_center_flag(D, _)
+      & D < 5.0
+    <-  .print("MidDef: reached defensive position (Dist=", D, "). Switching to defend.");
+        !defend.
 
-+!play
-    : see_ball(Dist, Dir) & Dist > 20
-    <- .print("Ball far, returning to position!");
-       !returnToDefense.
+// DEFEND (same structure)
++!defend
+    : not see_ball(_, _)
+    <-  .print("MidDef: defending, no ball visible - scanning.");
+        turn(45);
+        !defend.
 
-+!play
-    : true
-    <- .print("Waiting...");
-       !play.
++!defend
+    : see_ball(D, Dir)
+      & D >= 20.0
+    <-  .print("MidDef: ball far (Dist=", D, "). Tracking direction only.");
+        turn(Dir);
+        !defend.
 
-+!returnToDefense
-    : align_info_lost
-    <- .print("Missing alignment info, searching!");
-       !search;
-       !returnToDefense.
++!defend
+    : see_ball(D, _)
+      & D >= 1.0
+      & D < 20.0
+    <-  .print("MidDef: ball in range (Dist=", D, "). Going to get it.");
+        !get_ball.
 
++!defend
+    : see_ball(D, _)
+      & D < 1.0
+    <-  .print("MidDef: ball at feet (Dist=", D, "). Supporting immediately.");
+        !support.
 
+// GET_BALL
++!get_ball
+    : not see_ball(_, _)
+    <-  .print("MidDef: lost ball while chasing. Returning to defend.");
+        !defend.
 
++!get_ball
+    : see_ball(D, Dir)
+      & D >= 1.0
+    <-  .print("MidDef: chasing ball. Dist=", D, " Dir=", Dir);
+        dash(100, Dir);
+        !get_ball.
 
++!get_ball
+    : see_ball(D, _)
+      & D < 1.0
+    <-  .print("MidDef: reached ball (Dist=", D, "). Switching to support.");
+        !support.
 
+// SUPPORT
++!support
+    : not see_center_flag(_, _)
+    <-  .print("MidDef: support mode - centre flag not visible, searching...");
+        turn(45);
+        !support.
 
-+!returnToDefense
-    : above_two_quarter
-    <- .print("Moving up to defense position");
-           dash(100);
-           !returnToDefense.
-
-+!returnToDefense
-    : less_two_quarter
-    <- .print("Ball far, moving down to defense position");
-           dash(-100);
-           !returnToDefense.
-
-
-
-
-+!returnToDefense : true
-  <- .print("In position, back to regular play");
-  !play.
-
++!support
+    : see_center_flag(DC, DirC)
+    <-  .print("MidDef: clearing ball toward centre. DistCenter=", DC, " DirCenter=", DirC);
+        turn(DirC);
+        kick(100, DirC);
+        .print("MidDef: ball cleared, going back to defense.");
+        !go_on_defense.
